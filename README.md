@@ -1,34 +1,40 @@
 # medmnist-mini-bench — Minimal, Reproducible Baselines
 
-> 一键跑通 MedMNIST 的 2D/3D 小型基线，用最小工作量呈现“能跑、能看、能复现”。
+> 这是一个围绕 MedMNIST 的**最小化可复现基线**集合，目标是用尽量少的代码打通：数据加载 → 训练 → 评估 → 结果落盘 → CI。  
+> 适合课程演示 demonstrations、小规模实验、以及作为更复杂研究的起点 starting point（2D/3D 都涵盖）。
 
 [![CI](https://img.shields.io/github/actions/workflow/status/xlwang208/medmnist-mini-bench/ci.yml?branch=main)](https://github.com/xlwang208/medmnist-mini-bench/actions)
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 
-## 🎯 任务目的（为什么存在这个仓库）
-- **能跑**：一条命令拉数据、训练 1 个 epoch、输出指标与图表。
+## 🎯 目的（为什么存在这个仓库）
+- **能跑**：`scripts/run_demo.py`一条命令拉数据、训练 1 个 epoch、输出指标与图表。
 - **能看**：README 给清晰的命令、目录、结果产物（metrics.json、混淆矩阵）。
-- **能复现**：固定随机种子、版本依赖、最小 CI 绿勾；配置化（YAML）；结果落盘。
-
-面向场景：申请博士/岗位时展示**工程与实验素养**：数据加载 → 训练 → 评估 → 产出 → CI。
+- **能复现**：固定随机种子、版本依赖、最小 CI （GitHub Actions）；配置化（YAML）、明确的依赖与目录。
 
 ## 🔧 安装
 ```bash
-python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -U pip
-pip install -e .[dev]  # 或：pip install -r requirements.txt
+# 1) 建环境并激活
+conda create -n medmnist python=3.10 -y
+conda activate medmnist
+
+# 2) 安装 PyTorch（CPU/MPS 版，官方通道）
+conda install pytorch torchvision torchaudio -c pytorch -y
+
+# 3) 安装项目依赖（zsh 用户请注意用引号）
+pip install -e ".[dev]"    # 或：pip install -r requirements.txt
+
 ```
 
 > 若在中国大陆网络环境，您可优先配置 PyTorch 的国内镜像源后再安装 torch/torchvision。
 
 ## ▶️ 一键 Demo（建议从 PathMNIST 开始）
 ```bash
-# 2D：PathMNIST（9 类，彩色 28x28）
-python scripts/run_demo.py --dataset pathmnist --epochs 1
+# 2D：PathMNIST（9 类，彩色 28x28，演示用，几秒出结果）
+python scripts/run_demo.py --dataset pathmnist --epochs 1 --limit-samples 256 --num-workers 0
 
 # 3D：OrganMNIST3D（11 类，体素 28x28x28）
-python scripts/run_demo.py --dataset organmnist3d --model cnn3d --epochs 1
+python scripts/run_demo.py --dataset organmnist3d --model cnn3d --epochs 1 --limit-samples 256 --num-workers 0
 ```
 
 输出保存在 `outputs/<dataset>/<model>/<timestamp>/`：

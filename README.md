@@ -2,7 +2,7 @@
 
 > 一键跑通 MedMNIST 的 2D/3D 小型基线，用最小工作量呈现“能跑、能看、能复现”。
 
-[![CI](https://img.shields.io/github/actions/workflow/status/yourname/medmnist-mini-bench/ci.yml?branch=main)](https://github.com/yourname/medmnist-mini-bench/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/xlwang208/medmnist-mini-bench/ci.yml?branch=main)](https://github.com/xlwang208/medmnist-mini-bench/actions)
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 

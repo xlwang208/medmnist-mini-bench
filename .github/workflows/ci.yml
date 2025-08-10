@@ -27,4 +27,4 @@ jobs:
         env:
           MPLBACKEND: Agg
         run: |
-          python scripts/run_demo.py --dataset pathmnist --epochs 1 --limit-samples 256 --batch-size 32
+          python scripts/run_demo.py --dataset pathmnist --epochs 1 --limit-samples 256 --batch-size 32 --num-workers 0

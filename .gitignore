@@ -14,3 +14,15 @@ outputs/
 .ipynb_checkpoints/
 .DS_Store
 Thumbs.db
+
+# --- Project specific (medmnist-mini-bench) ---
+# training outputs & caches (do not version control)
+outputs/
+data/
+# notebooks cache
+.ipynb_checkpoints/
+# macOS & editors
+.DS_Store
+*.swp
+# keep assets (images/metrics for README) versioned:
+#!assets/

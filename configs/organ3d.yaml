@@ -1,0 +1,8 @@
+dataset: organmnist3d
+model: cnn3d
+epochs: 1
+batch_size: 16
+limit_samples: 512
+lr: 0.001
+seed: 42
+num_workers: 2

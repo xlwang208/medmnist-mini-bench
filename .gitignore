@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+.conda/
+env/
+venv/
+build/
+dist/
+data/
+outputs/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db

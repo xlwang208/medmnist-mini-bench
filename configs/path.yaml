@@ -1,0 +1,8 @@
+dataset: pathmnist
+model: cnn
+epochs: 1
+batch_size: 64
+limit_samples: 1024
+lr: 0.001
+seed: 42
+num_workers: 2

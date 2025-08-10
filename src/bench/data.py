@@ -17,11 +17,31 @@ def get_dataset_info(name: str):
     if key not in INFO:
         raise ValueError(f"Unknown dataset: {name}. Try 'pathmnist' or 'organmnist3d'.")
     info = INFO[key]
-    n_classes = int(info["n_classes"])
-    task = info["task"]  # "multi-class" / "multi-label" / "binary-class"
-    is_3d = key.endswith("3d")
-    n_channels = int(info.get("n_channels", 1))
-    return {"key": key, "n_classes": n_classes, "task": task, "is_3d": is_3d, "n_channels": n_channels, "info": info}
+
+    # 小工具：从若干候选键里取第一个存在的
+    def pick(*keys, default=None):
+        for k in keys:
+            if k in info and info[k] is not None:
+                return info[k]
+        return default
+
+    # 兼容不同版本字段
+    n_classes = pick("n_classes", "n_class", "nlabels", "n_label")
+    if n_classes is None:
+        labels = info.get("label") or info.get("labels") or {}
+        n_classes = len(labels) if isinstance(labels, dict) else 1
+    n_classes = int(n_classes)
+
+    task = pick("task", default="multi-class")
+    is_3d = bool(pick("is3d", default=False)) or key.endswith("3d")
+    n_channels = pick("n_channels", "n_channel", "channels")
+    if n_channels is None:
+        # 没给就保守：大多数是灰度（1），PathMNIST 等彩色（3）
+        n_channels = 3 if "pathmnist" in key else 1
+    n_channels = int(n_channels)
+
+    return {"key": key, "n_classes": n_classes, "task": task,
+            "is_3d": is_3d, "n_channels": n_channels, "info": info}
 
 def _build_transform_2d(n_channels: int):
     if T is None:
@@ -48,8 +68,27 @@ def _label_to_float(y: np.ndarray) -> torch.Tensor:
     return torch.from_numpy(y)
 
 def _get_dataset_class(key: str):
-    clsname = key[0].upper() + key[1:]
+    # 优先从 INFO 提供的类名里拿（不同版本字段名可能不同）
+    info = INFO.get(key, {})
+    python_class = (info.get("python_class")
+                    or info.get("PythonClass")
+                    or info.get("class_name"))
+    if python_class and hasattr(medmnist, python_class):
+        return getattr(medmnist, python_class)
+
+    # 回退：根据 key 规则生成类名：
+    # 例如 "pathmnist" -> "PathMNIST"; "organmnist3d" -> "OrganMNIST3D"
+    parts = key.split("mnist")
+    prefix = parts[0].capitalize() if parts and parts[0] else key.capitalize()
+    suffix = "MNIST"
+    if len(parts) > 1 and parts[1]:
+        suffix += parts[1].upper()  # 把 3d -> 3D
+    clsname = prefix + suffix
+
+    if not hasattr(medmnist, clsname):
+        raise AttributeError(f"medmnist has no dataset class '{clsname}' for key '{key}'")
     return getattr(medmnist, clsname)
+
 
 def _wrap_split(ds, is_3d: bool, task: str):
     class _Wrap(torch.utils.data.Dataset):
@@ -99,9 +138,10 @@ def get_dataloaders(
 
     transform = _build_transform_2d(meta["n_channels"]) if not meta["is_3d"] else None
 
-    train_ds = DatasetClass(split="train", transform=transform, download=download, as_rgb=meta["n_channels"]==3)
-    val_ds   = DatasetClass(split="val",   transform=transform, download=download, as_rgb=meta["n_channels"]==3)
-    test_ds  = DatasetClass(split="test",  transform=transform, download=download, as_rgb=meta["n_channels"]==3)
+    train_ds = DatasetClass(split="train", transform=transform, download=download)
+    val_ds   = DatasetClass(split="val",   transform=transform, download=download)
+    test_ds  = DatasetClass(split="test",  transform=transform, download=download)
+
 
     train_ds = _wrap_split(train_ds, is_3d=meta["is_3d"], task=meta["task"])
     val_ds   = _wrap_split(val_ds,   is_3d=meta["is_3d"], task=meta["task"])
